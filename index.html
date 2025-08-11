@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesSparx GTM Maturity Assessment</title>
+  <!--
+    Modern, single‑page application for the SalesSparx gap analysis assessment.
+    This file contains the complete markup, styling and script required to run
+    the assessment in any modern browser.  It uses the SalesSparx brand
+    colours (teal/green and dark navy) for buttons and accents.  Pages are
+    created dynamically from the category and question definitions below to
+    simplify maintenance.
+  -->
+  <style>
+    /* Base styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background-color: #F5F7FA;
+      color: #00233A;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1, h2 { margin-top: 0; }
+    a { color: #2CA5A5; cursor: pointer; text-decoration: underline; }
+    /* Page visibility */
+    .page { display: none; }
+    .active { display: block; }
+    /* Forms and cards */
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .button {
+      background-color: #2CA5A5;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px 5px 0 0;
+      transition: background-color 0.2s;
+    }
+    .button:hover { background-color: #218E8E; }
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .nav { text-align: right; margin-bottom: 10px; }
+    /* Card and question styling */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .question-text { font-weight: 600; margin-bottom: 8px; }
+    .scale {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .scale input[type="radio"] { display: none; }
+    .scale label {
+      flex: 1;
+      min-width: 90px;
+      padding: 10px 5px;
+      text-align: center;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      font-size: 13px;
+      background-color: #fff;
+      transition: background-color 0.2s, color 0.2s;
+    }
+    .scale input[type="radio"]:checked + label {
+      background-color: #2CA5A5;
+      color: #fff;
+      border-color: #2CA5A5;
+    }
+    .scale label:hover { background-color: #E0F2F2; }
+    .progress {
+      margin-bottom: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+    /* Summary and dashboard tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #2CA5A5;
+      color: #fff;
+    }
+    /* Admin styling */
+    #admin-dashboard table th { background-color: #00233A; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <a onclick="showAdminLogin()">Admin Login</a>
+    </div>
+    <!-- Intro / Start page -->
+    <div id="intro-page" class="page active">
+      <h1>SalesSparx Maturity Assessment</h1>
+      <p>Understand where you stand on your go‑to‑market journey.  This quick assessment measures your organisation’s maturity across value proposition, offering, marketing, sales, delivery, technology and change management.  Knowing your current maturity helps prioritise improvements and accelerates growth.</p>
+      <p><strong>Why take this assessment?</strong><br>
+      Organisations with higher maturity achieve more predictable growth, stronger customer relationships and improved profitability.  Completing this assessment provides a baseline that highlights opportunities and offers tailored recommendations to guide your next steps.</p>
+      <h3>Tell us about yourself</h3>
+      <div class="form-group"><label for="name">Name</label><input type="text" id="name" /></div>
+      <div class="form-group"><label for="company">Company Name</label><input type="text" id="company" /></div>
+      <div class="form-group"><label for="role">Role</label><input type="text" id="role" /></div>
+      <div class="form-group"><label for="email">Email</label><input type="email" id="email" /></div>
+      <button class="button" onclick="startAssessment()">Start Assessment</button>
+    </div>
+    <!-- Admin login page -->
+    <div id="admin-login-page" class="page">
+      <h2>Admin Login</h2>
+      <div class="form-group"><label for="admin-user">Username</label><input type="text" id="admin-user" /></div>
+      <div class="form-group"><label for="admin-pass">Password</label><input type="password" id="admin-pass" /></div>
+      <button class="button" onclick="adminLogin()">Login</button>
+      <button class="button" onclick="cancelAdmin()">Cancel</button>
+    </div>
+    <!-- Admin dashboard -->
+    <div id="admin-dashboard" class="page">
+      <h2>Assessment Submissions</h2>
+      <div id="dashboard-content"></div>
+      <button class="button" onclick="logoutAdmin()">Logout</button>
+    </div>
+    <!-- Container where category pages will be injected -->
+    <div id="assessment-container"></div>
+    <!-- Summary page -->
+    <div id="summary-page" class="page">
+      <h2>Assessment Summary</h2>
+      <div id="summary-content"></div>
+      <button class="button" onclick="restartAssessment()">Start Over</button>
+    </div>
+  </div>
+
+  <script>
+  /*
+    Category structure definitions.  Each category has a list of questions with
+    optional suggestions for improvement.  The descriptions explain what
+    dimension of maturity is being assessed.
+  */
+  const structure = {
+    "Value Proposition": [
+      { name: "Proven economic value proposition", suggestion: "Develop a playbook for using the value calculator and integrate its use into the sales process." },
+      { name: "3 Whys answered", suggestion: "Establish a coaching culture to ensure ongoing alignment with the \u201c3 Whys\u201d framework." },
+      { name: "Value proposition engages emotions and is supported by proof points", suggestion: "Use advanced storytelling training to enhance emotional resonance." },
+      { name: "Organization wide adoption of value proposition", suggestion: "Introduce standardized processes to ensure consistent application of the value proposition." },
+      { name: "Proven unit economics", suggestion: "Expand metrics to include additional drivers such as customer retention rates and operating margins." },
+      { name: "Elevator pitch", suggestion: "Train teams to align pitches with \"The World Has Changed\" insights to emphasize urgency." }
+    ],
+    "Offering": [
+      { name: "Address full solution lifecycle", suggestion: "Build foundational lifecycle capabilities, starting with clear handoff points between teams." },
+      { name: "Well defined solution delivery methodology", suggestion: "Leverage insights from \u201cTrusted\u201d and \u201cOutcomes\u201d conversations to ensure methodologies align with client expectations. Build alignment between methodology steps and customer lifecycle stages." },
+      { name: "Proven solution scalabiliy", suggestion: "Incorporate \u201cThe Thing\u201d conversation to align scalability goals with client needs. Build foundational processes and tools to support long-term scalability." },
+      { name: "Solution Roadmap is driven by voice of the customer (VOC)", suggestion: "Incorporate VOC insights into \"The Plan\" and \"Outcomes\" conversations to ensure alignment with customer expectations." },
+      { name: "Key referencable clients", suggestion: "Use \"Before/After\" conversations to highlight client transformations and secure advocacy." },
+      { name: "Pricing Strategy", suggestion: "Leverage value calculators during \"Why Us\" conversations to demonstrate ROI and justify pricing." },
+      { name: "Solution Development Roadmap", suggestion: null }
+    ],
+    "Marketing": [
+      { name: "Market segmentation and value proposition aligned", suggestion: "Regularly update segmentation based on VOC insights to maintain relevance." },
+      { name: "Ideal customer profiles and personas", suggestion: "Use \"The Plan\" conversations to align persona insights with customer outcomes." },
+      { name: "Structured Lead Generation Process", suggestion: "Integrate lead generation metrics into \"Expectations\" conversations to track progress." },
+      { name: "Compelling story-based branding/messaging across channels", suggestion: "Use \"The World Has Changed\" and \"Outcomes\" conversations to tailor messaging to market shifts and customer results." },
+      { name: "Credibility building assets (client logos, case studies, testimonials, endorsements, certifications)", suggestion: "Use \"Trusted\" and \"Why Us\" conversations to secure client participation in building assets.  Highlight credibility assets during \"Before/After\" and \"Outcomes\" conversations to reinforce the value delivered." },
+      { name: "Website optimized for lead generation  (SEO, content)", suggestion: "Use \"Goals\" and \"Problems\" conversations to identify high-priority content areas." },
+      { name: "Market awareness", suggestion: "Use \"Current State\" and \"The World Has Changed\" conversations to develop messaging that resonates with market challenges." },
+      { name: "Paid advertising (PPC, social, industry pubs, syndication)", suggestion: null },
+      { name: "Building and nurturing pre SQL targets (with emails, LinkedIn etc)", suggestion: null },
+      { name: "Nurture existing clients (company vs sales directed)", suggestion: null },
+      { name: "Sales enablement materials (Sales decks, competitor battlecard, one pagers, etc)", suggestion: "Align materials with \"Before/After\" and \"Outcomes\" scenarios to better demonstrate the transformation that the solutions provide." },
+      { name: "Corporate Intro Deck", suggestion: "Align the deck with \"Before/After\" and \"Outcomes\" conversations to showcase the transformation clients can achieve." },
+      { name: "Proposal", suggestion: "Use \"Goals\" and \"Current State\" conversations to tailor proposals to client priorities and pain points." },
+      { name: "Referral program/structure", suggestion: "Use \"Trusted\" and \"Customer Story\" conversations to identify satisfied clients willing to act as advocates" },
+      { name: "Defined marketing metrics", suggestion: "Use \"Goals\" and \"Current State\" conversations to align initial metrics with business objectives and company needs." },
+      { name: "Marketing investment is aligned with sales/revenue objectives", suggestion: "Integrate \"Before/After\" and \"The Plan\" conversations to align investments with business outcomes and customer transformation." }
+    ],
+    "Sales": [
+      { name: "Defined sales process", suggestion: "Use \"Goals\" and \"Problems\" conversations to identify common roadblocks and standardize initial steps in the sales process." },
+      { name: "Effective distribution model", suggestion: "Use \"Goals\" and \"Current State\" conversations to identify high-priority channels and align them with customer preferences." },
+      { name: "Sales organization is aligned with overall business strategy.", suggestion: "Use \"Goals\" and \"Current State\" conversations to clarify organizational priorities and align roles with strategic needs." },
+      { name: "Defined sales incentive", suggestion: "Use \"Goals\" and \"Problems\" conversations to identify what behaviors drive success and align incentives accordingly" },
+      { name: "Oganization-wide sales culture", suggestion: null },
+      { name: "Defined sales competencies", suggestion: "Use \"Goals\" and \"Problems\" conversations to identify high-priority skills and align training efforts accordingly." },
+      { name: "Well-defined roles and responsibilities", suggestion: "Use \"Goals\" and \"Current State\" conversations to ensure roles align with business objectives and address specific customer needs." },
+      { name: "Sales leadership experience", suggestion: null },
+      { name: "Sales team experience", suggestion: null },
+      { name: "Hiring process", suggestion: null },
+      { name: "Defined metrics", suggestion: "Use \"Current State\" and \"Goals\" conversations to establish initial metrics that reflect both team performance and customer outcomes." },
+      { name: "Sales investment is aligned with sales/revenue objectives", suggestion: "Use \"Goals\" and \"Current State\" conversations to identify high-impact marketing initiatives that support revenue growth." }
+    ],
+    "Delivery": [
+      { name: "Proven delivery capability", suggestion: "Use \"Current State\" and \"Goals\" conversations to identify key bottlenecks and implement foundational processes to improve reliability." },
+      { name: "Defined skills/knowledge requirements", suggestion: "Use \"Goals\" and \"Problems\" conversations to identify critical skill areas and align training efforts with delivery priorities." },
+      { name: "Defined training/certification program", suggestion: null },
+      { name: "Account management upselling incentives", suggestion: "Use \"Goals\" and \"Current State\" conversations to understand client needs and align upselling efforts with their objectives, building trust and increasing account value." },
+      { name: "Defined project managment protocols", suggestion: null },
+      { name: "Retention/customer satisfaction", suggestion: null },
+      { name: "Defined account managment process", suggestion: null }
+    ],
+    "Enablement Technology": [
+      { name: "Marketing automation", suggestion: null },
+      { name: "Customer relationship management", suggestion: null },
+      { name: "Learning management system", suggestion: null },
+      { name: "Project management system", suggestion: null },
+      { name: "Lead generation tools", suggestion: null }
+    ],
+    "Change Management": [
+      { name: "Organizational Readiness for Change", suggestion: null },
+      { name: "Leadership Alignment & Commitment", suggestion: null },
+      { name: "Change Capability & Infrastructure", suggestion: null },
+      { name: "Change Culture & Adoption", suggestion: null }
+    ]
+  };
+  // Descriptions for each category. These will appear at the top of each section.
+  const categoryDescriptions = {
+    "Value Proposition": "Assess your ability to articulate economic value, address the 3 Whys and create an emotional, organisation‑wide value narrative.",
+    "Offering": "Evaluate your solution lifecycle, delivery methodology, scalability, pricing strategy and customer proof points.",
+    "Marketing": "Review your branding, lead generation, nurturing programs and sales enablement content across the buyer journey.",
+    "Sales": "Evaluate sales process, distribution, incentives, culture, competencies and performance tracking.",
+    "Delivery": "Assess delivery capability, skills, training, account management and project protocols.",
+    "Enablement Technology": "Review your technology stack across marketing, CRM, learning, project management and lead generation.",
+    "Change Management": "Assess organisational readiness, leadership alignment and change adoption."
+  };
+  const categoryNames = Object.keys(structure);
+  // Global state
+  let currentCategory = -1;
+  let responses = {}; // holds question responses and user info
+  let adminLoggedIn = false;
+
+  // Build the category pages dynamically once DOM has loaded
+  function buildAssessmentPages() {
+    const container = document.getElementById('assessment-container');
+    categoryNames.forEach((cat, index) => {
+      const items = structure[cat];
+      const page = document.createElement('div');
+      page.className = 'page';
+      page.id = `category-${index}`;
+      let inner = '';
+      inner += `<h2>${cat}</h2>`;
+      inner += `<p>${categoryDescriptions[cat] || ''}</p>`;
+      inner += `<div class="progress">Section ${index + 1} of ${categoryNames.length}</div>`;
+      // Generate each question card
+      items.forEach((item, j) => {
+        const baseName = cat.replace(/\s+/g, '_');
+        inner += `<div class="card">`;
+        inner += `<div class="question-text"><strong>${item.name}</strong></div>`;
+        inner += `<div class="scale">`;
+        // six options from 0 to 5 with labels
+        const labels = ['None','Emerging','Basic','Intermediate','Advanced','Leading'];
+        for (let val = 0; val <= 5; val++) {
+          const id = `${baseName}_${j}_${val}`;
+          const name = `${baseName}_${j}`;
+          inner += `<input type="radio" name="${name}" id="${id}" value="${val}" />`;
+          inner += `<label for="${id}">${labels[val]}</label>`;
+        }
+        inner += `</div>`; // scale
+        inner += `</div>`; // card
+      });
+      // Navigation buttons
+      inner += `<div>`;
+      if (index > 0) {
+        inner += `<button class="button" onclick="prevCategory(${index})">Back</button>`;
+      }
+      if (index < categoryNames.length - 1) {
+        inner += `<button class="button" onclick="nextCategory(${index})">Next</button>`;
+      } else {
+        inner += `<button class="button" onclick="submitAssessment()">Finish</button>`;
+      }
+      inner += `</div>`;
+      page.innerHTML = inner;
+      container.appendChild(page);
+    });
+  }
+
+  // Start assessment: validate user info then show first category
+  function startAssessment() {
+    const name = document.getElementById('name').value.trim();
+    const company = document.getElementById('company').value.trim();
+    const role = document.getElementById('role').value.trim();
+    const email = document.getElementById('email').value.trim();
+    if (!name || !company || !role || !email) {
+      alert('Please complete all fields before starting the assessment.');
+      return;
+    }
+    responses = { user: { name, company, role, email } };
+    // hide intro and show first category
+    hideAllPages();
+    currentCategory = 0;
+    document.getElementById('category-0').classList.add('active');
+  }
+  // Navigate forward: ensure current category answered, then show next
+  function nextCategory(index) {
+    const catName = categoryNames[index];
+    const items = structure[catName];
+    // Validate all questions answered
+    for (let j = 0; j < items.length; j++) {
+      const groupName = catName.replace(/\s+/g, '_') + '_' + j;
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      let answered = false;
+      radios.forEach(r => { if (r.checked) answered = true; });
+      if (!answered) {
+        alert('Please answer all questions before proceeding.');
+        return;
+      }
+    }
+    // Save responses for this category
+    items.forEach((item, j) => {
+      const groupName = catName.replace(/\s+/g, '_') + '_' + j;
+      const val = parseInt(document.querySelector(`input[name="${groupName}"]:checked`).value);
+      responses[groupName] = val;
+    });
+    // Show next page
+    document.getElementById(`category-${index}`).classList.remove('active');
+    currentCategory = index + 1;
+    document.getElementById(`category-${currentCategory}`).classList.add('active');
+  }
+  // Navigate backward without validation
+  function prevCategory(index) {
+    document.getElementById(`category-${index}`).classList.remove('active');
+    currentCategory = index - 1;
+    document.getElementById(`category-${currentCategory}`).classList.add('active');
+  }
+  // Compute average and suggestions, then show summary
+  function submitAssessment() {
+    // Validate last category
+    const idx = categoryNames.length - 1;
+    const catName = categoryNames[idx];
+    const items = structure[catName];
+    for (let j = 0; j < items.length; j++) {
+      const groupName = catName.replace(/\s+/g, '_') + '_' + j;
+      const radios = document.querySelectorAll(`input[name="${groupName}"]`);
+      let answered = false;
+      radios.forEach(r => { if (r.checked) answered = true; });
+      if (!answered) {
+        alert('Please answer all questions before finishing.');
+        return;
+      }
+    }
+    // Save last responses
+    items.forEach((item, j) => {
+      const groupName = catName.replace(/\s+/g, '_') + '_' + j;
+      const val = parseInt(document.querySelector(`input[name="${groupName}"]:checked`).value);
+      responses[groupName] = val;
+    });
+    // Compute averages and classifications
+    const results = {};
+    categoryNames.forEach(cat => {
+      const items = structure[cat];
+      let total = 0;
+      items.forEach((item, j) => {
+        const key = cat.replace(/\s+/g, '_') + '_' + j;
+        total += responses[key];
+      });
+      results[cat] = total / items.length;
+    });
+    // Build summary table HTML
+    let html = '<table><tr><th>Category</th><th>Average Score</th><th>Maturity Level</th><th>Improvement Suggestions</th></tr>';
+    categoryNames.forEach(cat => {
+      const avg = results[cat];
+      const level = classify(avg);
+      const suggestions = [];
+      structure[cat].forEach((item, j) => {
+        const key = cat.replace(/\s+/g, '_') + '_' + j;
+        if (responses[key] < 5 && item.suggestion) {
+          suggestions.push(item.suggestion);
+        }
+      });
+      const sugHtml = suggestions.length ? '<ul><li>' + suggestions.join('</li><li>') + '</li></ul>' : 'None';
+      html += `<tr><td>${cat}</td><td>${avg.toFixed(2)}</td><td>${level}</td><td>${sugHtml}</td></tr>`;
+    });
+    html += '</table>';
+    document.getElementById('summary-content').innerHTML = html;
+    // Save to localStorage for admin
+    const stored = JSON.parse(localStorage.getItem('assessments') || '[]');
+    stored.push({ user: responses.user, results });
+    localStorage.setItem('assessments', JSON.stringify(stored));
+    // Show summary page
+    hideAllPages();
+    document.getElementById('summary-page').classList.add('active');
+  }
+  // Maturity classification based on average score
+  function classify(score) {
+    if (score >= 4.5) return 'Leading';
+    if (score >= 3.5) return 'Advanced';
+    if (score >= 2.5) return 'Intermediate';
+    if (score >= 1.5) return 'Basic';
+    if (score >= 0.5) return 'Emerging';
+    return 'None';
+  }
+  // Hide all pages
+  function hideAllPages() {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(pg => pg.classList.remove('active'));
+  }
+  // Admin functions
+  function showAdminLogin() {
+    hideAllPages();
+    document.getElementById('admin-login-page').classList.add('active');
+  }
+  function cancelAdmin() {
+    // return to intro
+    hideAllPages();
+    document.getElementById('intro-page').classList.add('active');
+  }
+  function adminLogin() {
+    const user = document.getElementById('admin-user').value.trim();
+    const pass = document.getElementById('admin-pass').value;
+    if (user === 'salessparx' && pass === 'salessparx2025') {
+      adminLoggedIn = true;
+      renderDashboard();
+      hideAllPages();
+      document.getElementById('admin-dashboard').classList.add('active');
+    } else {
+      alert('Invalid credentials');
+    }
+  }
+  function renderDashboard() {
+    const content = document.getElementById('dashboard-content');
+    const data = JSON.parse(localStorage.getItem('assessments') || '[]');
+    if (data.length === 0) {
+      content.innerHTML = '<p>No submissions yet.</p>';
+      return;
+    }
+    let tableHtml = '<table><tr><th>Name</th><th>Company</th><th>Role</th><th>Email</th>';
+    categoryNames.forEach(cat => {
+      tableHtml += `<th>${cat} Score</th>`;
+    });
+    tableHtml += '</tr>';
+    data.forEach(record => {
+      tableHtml += '<tr>';
+      tableHtml += `<td>${record.user.name}</td>`;
+      tableHtml += `<td>${record.user.company}</td>`;
+      tableHtml += `<td>${record.user.role}</td>`;
+      tableHtml += `<td>${record.user.email}</td>`;
+      categoryNames.forEach(cat => {
+        tableHtml += `<td>${record.results[cat].toFixed(2)}</td>`;
+      });
+      tableHtml += '</tr>';
+    });
+    tableHtml += '</table>';
+    content.innerHTML = tableHtml;
+  }
+  function logoutAdmin() {
+    adminLoggedIn = false;
+    hideAllPages();
+    document.getElementById('intro-page').classList.add('active');
+  }
+  function restartAssessment() {
+    responses = {};
+    hideAllPages();
+    document.getElementById('intro-page').classList.add('active');
+  }
+  // Build pages on load
+  window.addEventListener('DOMContentLoaded', buildAssessmentPages);
+  </script>
+</body>
+</html>
