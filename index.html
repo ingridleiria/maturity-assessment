@@ -28,8 +28,10 @@
 
     .page {
       display: none;
-      padding: 1.5rem;
-      max-width: 960px;
+      /* Increase the width of the page container so that more of the screen is utilised on large displays. */
+      padding: 2rem;
+      /* Allow the pages to stretch wider on large screens while maintaining centred alignment */
+      max-width: 1400px;
       margin: 0 auto;
     }
     .page.active {
@@ -38,30 +40,23 @@
 
     /* Introduction page styling */
     #intro-page {
-      /* Apply a lighter gradient using the brand teal colours for the intro card */
-      background: linear-gradient(135deg, #00A7B3 0%, #007a8a 100%);
+      /* Very light card with subtle shadow to ensure the content stands out without dominating the screen */
+      background: #F9FBFC;
+      color: var(--text-color);
+      border: 1px solid #E6E8EC;
       border-radius: 8px;
       margin: 2rem auto;
-      padding: 2rem 1.5rem;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      color: white;
-    }
-    /* Ensure labels and text within the intro card remain legible on the coloured background */
-    #intro-page h1,
-    #intro-page p,
-    #intro-page label {
-      color: white;
-    }
-    #intro-page .form-field input {
-      background-color: #F8FAFC;
-      color: var(--text-color);
+      padding: 2.5rem 2rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }
     #intro-page h1 {
       margin-top: 0;
       font-size: 2rem;
+      color: var(--primary);
     }
     #intro-page p {
       margin: 1rem 0;
+      color: var(--text-color);
     }
     .form-field {
       display: flex;
@@ -71,12 +66,15 @@
     .form-field label {
       font-weight: bold;
       margin-bottom: 0.25rem;
+      color: var(--text-color);
     }
     .form-field input {
       padding: 0.5rem;
       border: none;
       border-radius: 4px;
       font-size: 1rem;
+      /* Dark text on light inputs for contrast */
+      color: #1F2933;
     }
     button.primary {
       padding: 0.6rem 1rem;
@@ -126,7 +124,7 @@
     .option.active {
       border-color: var(--primary);
       background-color: var(--primary);
-      color: white;
+      color: #FFFFFF;
     }
     .nav-buttons {
       display: flex;
@@ -228,12 +226,58 @@
       transform: rotate(90deg);
     }
 
+    /* Modern table styling for improvement suggestions */
+    .improvements-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .improvements-table th, .improvements-table td {
+      padding: 0.75rem;
+      border: 1px solid var(--card-border);
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+    .improvements-table th {
+      background: #F8FAFC;
+      color: var(--text-color);
+      text-align: left;
+      font-weight: 600;
+    }
+    .improvements-table tr:nth-child(even) {
+      background-color: #F9FAFD;
+    }
+    .improvements-table ul {
+      margin: 0;
+      padding-left: 1.25rem;
+    }
+
+    /* Styling for the hover instruction on the assessment page */
+    .hover-instruction {
+      font-weight: bold;
+      color: var(--secondary);
+      text-decoration: underline;
+      /* Ensure the hover tip uses the same size as the main instruction */
+      font-size: 1rem;
+      margin-top: 0.3rem;
+    }
+
+    /* Reduce spacing between paragraphs in the overall summary */
+    #overall-summary p {
+      margin: 0.3rem 0;
+    }
+
     /* Logo styling */
     .logo {
       display: block;
       max-width: 200px;
       height: auto;
       margin: 1.5rem auto 0;
+    }
+
+    /* Hide the FUSE container when not in use */
+    #fuse-container {
+      display: none;
     }
     @media (max-width: 600px) {
       .option-row {
@@ -251,11 +295,16 @@
 <body>
   <!-- Introduction / capture details -->
   <div id="intro-page" class="page active">
-    <h1>SalesSparx Maturity Assessment</h1>
-    <p>Understand where you stand on your go‑to‑market journey. This quick assessment measures your organisation’s maturity across value proposition, offering, marketing, sales, delivery, technology and change management. Knowing your current maturity helps prioritise improvements and accelerates growth.</p>
-    <p><strong>Why take this assessment?</strong><br/>
-      Organisations with higher maturity achieve more predictable growth, stronger customer relationships and improved profitability. Completing this assessment provides a baseline that highlights opportunities and offers tailored recommendations to guide your next steps.
-    </p>
+    <h1>SalesSparx Go‑To‑Market Maturity Assessment</h1>
+    <p>Uncover the strengths and opportunities in your go‑to‑market strategy. In just a few minutes, you’ll assess your performance across seven critical categories, each rated from None (no established capability) to Leading (industry‑best practices). This assessment uses a five‑level scale:</p>
+    <ul style="margin-left:1.5rem;">
+      <li><strong>None (1)</strong> – No formal process in place.</li>
+      <li><strong>Emerging (2)</strong> – Early‑stage practices, limited consistency.</li>
+      <li><strong>Basic (3)</strong> – Defined processes, moderate adoption.</li>
+      <li><strong>Advanced (4)</strong> – Mature, optimized practices in place.</li>
+      <li><strong>Leading (5)</strong> – Proven, industry‑leading excellence.</li>
+    </ul>
+    <p>At the end, you’ll receive a personalised report with a visual maturity map, category‑specific recommendations, and actionable next steps to accelerate growth.</p>
     <div class="form-field">
       <label for="name">Name</label>
       <input type="text" id="name" placeholder="Your name" />
@@ -275,6 +324,7 @@
     <button id="start-btn" class="primary" type="button">Start Assessment</button>
     <p style="margin-top:1rem; font-size:0.9rem;">Already have admin access? <a href="#" id="admin-login-link">Admin Login</a></p>
 
+    <!-- No logo on the first page; logo appears on the results page only -->
   </div>
 
   <!-- Assessment pages (generated dynamically) -->
@@ -297,6 +347,8 @@
       <div id="participant-info"></div>
       <p id="summary-text"></p>
     </div>
+    <!-- Overall summary card showing average score and guidance -->
+    <div id="overall-summary" class="section-card"></div>
     <!-- Radar chart display -->
     <div class="section-card">
       <canvas id="radarCanvas" width="600" height="500"></canvas>
@@ -305,6 +357,8 @@
     <div class="section-card">
       <div id="improvements"></div>
     </div>
+    <!-- FUSE graphic and explanation container -->
+    <div id="fuse-container" class="section-card"></div>
     <!-- Call to action -->
     <div class="section-card" id="cta">
       <p>Ready to accelerate your growth? <a href="https://salessparx.com/light-your-sales-fuse/" target="_blank">Download our book</a> or <a href="mailto:success@salessparx.com">contact us</a> for a personalised consultation.</p>
@@ -344,9 +398,6 @@
     <button id="admin-logout-btn" class="primary" type="button" style="margin-top:1rem;">Logout</button>
   </div>
 
-  <!-- Tooltip container for maturity level descriptions -->
-  <div id="tooltip" style="display:none; position:absolute; background-color:rgba(31,41,51,0.9); color:white; padding:0.5rem; border-radius:4px; font-size:0.8rem; max-width:300px; z-index:1000; pointer-events:none; line-height:1.4;"></div>
-
   <!-- Load full assessment data from external file -->
   <!-- Load full assessment data from external file. The file must be kept in the same directory as this HTML. -->
 
@@ -354,52 +405,155 @@
 <script>
 window.assessmentData = JSON.parse(document.getElementById("assessment-data").textContent);
 </script>
+<!-- Override assessment data with simplified version generated from the latest Excel -->
+<script src="assessment_data_simplified.js"></script>
 <script>
     // Data imported from summary file. This object defines categories, questions and maturity descriptions.
+    
 
-    // Tooltip helper functions to display full descriptions on hover
-    function showTooltip(e) {
-      const tooltipEl = document.getElementById('tooltip');
-      const desc = e.currentTarget.dataset.description;
-      if (!tooltipEl) return;
-      tooltipEl.textContent = desc;
+    // Provide high-level descriptions for each category to guide the user. These are shown at the top of each section.
+    const categoryDescriptions = {
+      'Value Proposition': 'Assess how clearly and convincingly your organisation articulates and delivers economic and emotional value, supported by proof points and adoption across teams.',
+      'Offering': 'Evaluate your ability to address the full solution lifecycle, deliver with scalable methodologies, and align pricing and roadmaps to customer needs.',
+      'Marketing': 'Examine your marketing capabilities from customer profiling and lead generation to website optimisation, sales materials and metrics.',
+      'Sales': 'Analyse how defined, structured and data‑driven your sales process, culture, roles and metrics are to drive revenue.',
+      'Delivery': 'Measure your ability to reliably deliver projects, manage accounts, develop skills and retain customers through strong delivery frameworks.',
+      'Enblement Technology': 'Review the technology stack that powers marketing, CRM, learning, project management and lead generation across your organisation.',
+      'Enablement Technology': 'Review the technology stack that powers marketing, CRM, learning, project management and lead generation across your organisation.',
+      'Change Management': 'Assess readiness, leadership support, capability and culture for change management across your organisation.'
+    };
+
+    // Tooltip management: show full descriptions on hover
+    const tooltipEl = document.createElement('div');
+    tooltipEl.id = 'tooltip';
+    tooltipEl.style.position = 'fixed';
+    tooltipEl.style.zIndex = '9999';
+    tooltipEl.style.background = 'rgba(31,41,51,0.9)';
+    tooltipEl.style.color = '#FFFFFF';
+    tooltipEl.style.padding = '0.5rem 0.75rem';
+    tooltipEl.style.borderRadius = '4px';
+    tooltipEl.style.maxWidth = '300px';
+    tooltipEl.style.fontSize = '0.8rem';
+    tooltipEl.style.display = 'none';
+    tooltipEl.style.pointerEvents = 'none';
+    document.body.appendChild(tooltipEl);
+
+    // Generic improvement suggestions per category for the next maturity stage. Each category has up to three high‑level suggestions.
+    const improvementSuggestions = {
+      'Value Proposition': [
+        'Develop a robust economic value proposition using data‑driven ROI models and customer case studies.',
+        'Craft emotionally resonant stories backed by proof points to connect with buyers on a personal level.',
+        'Ensure organisation‑wide adoption of your value proposition through consistent messaging, training and decision‑making.'
+      ],
+      'Offering': [
+        'Deliver seamless support across the full customer lifecycle using standardised methodologies.',
+        'Enhance scalability by implementing repeatable processes and tools for expansion into new markets.',
+        'Refine your pricing strategy and solution roadmap to reflect customer insights and market trends.'
+      ],
+      'Marketing': [
+        'Define detailed ideal customer profiles and personas to target the right audience.',
+        'Implement a structured lead generation process with lead scoring and nurturing workflows.',
+        'Optimise your website and content for lead generation and SEO.'
+      ],
+      'Sales': [
+        'Document and optimise your sales process, aligning it with your buyer journey.',
+        'Build a cohesive sales culture with clear roles, responsibilities and data‑driven metrics.',
+        'Enhance distribution models and incentive structures to drive performance.'
+      ],
+      'Delivery': [
+        'Establish proven delivery capabilities supported by documented workflows and project management tools.',
+        'Define required skills and knowledge, and implement continuous training and certification.',
+        'Develop account management processes and retention strategies to upsell and retain clients.'
+      ],
+      'Enblement Technology': [
+        'Implement or expand marketing automation and CRM systems to centralise customer data.',
+        'Adopt learning, project management and lead generation tools for operational efficiency.',
+        'Integrate technology platforms to enable seamless data flow and analytics.'
+      ],
+      'Enablement Technology': [
+        'Implement or expand marketing automation and CRM systems to centralise customer data.',
+        'Adopt learning, project management and lead generation tools for operational efficiency.',
+        'Integrate technology platforms to enable seamless data flow and analytics.'
+      ],
+      'Change Management': [
+        'Improve organisational readiness for change through assessment and planning.',
+        'Align leadership and secure commitment to transformation initiatives.',
+        'Build change capability and culture through training, communication and feedback loops.'
+      ]
+    };
+
+    // Resource recommendations per category. These links point to SalesSparx materials to support growth.
+    const categoryResources = {
+      'Value Proposition': [
+        { label: 'Sample Value Calculator', url: 'https://salessparx.com/resources/sample-value-calculator/' },
+        { label: 'Complete Visual References', url: 'https://salessparx.com/resources/complete-visual-references/' },
+        { label: 'Shared Vision Selling Guide', url: 'https://salessparx.com/resources/shared-vision-selling-guide/' }
+      ],
+      'Offering': [
+        { label: 'Account & Opportunity Template', url: 'https://salessparx.com/resources/account-and-opportunity-template/' },
+        { label: 'Complete Visual References', url: 'https://salessparx.com/resources/complete-visual-references/' },
+        { label: 'Shared Vision Selling Guide', url: 'https://salessparx.com/resources/shared-vision-selling-guide/' }
+      ],
+      'Marketing': [
+        { label: 'Market Sample Report', url: 'https://salessparx.com/resources/market-sample-report/' },
+        { label: 'Complete Visual References', url: 'https://salessparx.com/resources/complete-visual-references/' },
+        { label: 'Fuse Market Maturity Assessment Criteria', url: 'https://salessparx.com/resources/fuse-market-maturity-assessment-criteria/' }
+      ],
+      'Sales': [
+        { label: 'Shared Vision Selling Guide', url: 'https://salessparx.com/resources/shared-vision-selling-guide/' },
+        { label: 'Account & Opportunity Template', url: 'https://salessparx.com/resources/account-and-opportunity-template/' },
+        { label: 'Light Your Sales Fuse', url: 'https://salessparx.com/light-your-sales-fuse/' }
+      ],
+      'Delivery': [
+        { label: 'Account & Opportunity Template', url: 'https://salessparx.com/resources/account-and-opportunity-template/' },
+        { label: 'Shared Vision Selling Guide', url: 'https://salessparx.com/resources/shared-vision-selling-guide/' },
+        { label: 'Light Your Sales Fuse', url: 'https://salessparx.com/light-your-sales-fuse/' }
+      ],
+      'Enblement Technology': [
+        { label: 'Complete Visual References', url: 'https://salessparx.com/resources/complete-visual-references/' },
+        { label: 'Fuse Market Maturity Assessment Criteria', url: 'https://salessparx.com/resources/fuse-market-maturity-assessment-criteria/' },
+        { label: 'Sample Value Calculator', url: 'https://salessparx.com/resources/sample-value-calculator/' }
+      ],
+      'Enablement Technology': [
+        { label: 'Complete Visual References', url: 'https://salessparx.com/resources/complete-visual-references/' },
+        { label: 'Fuse Market Maturity Assessment Criteria', url: 'https://salessparx.com/resources/fuse-market-maturity-assessment-criteria/' },
+        { label: 'Sample Value Calculator', url: 'https://salessparx.com/resources/sample-value-calculator/' }
+      ],
+      'Change Management': [
+        { label: 'Light Your Sales Fuse', url: 'https://salessparx.com/light-your-sales-fuse/' },
+        { label: 'Shared Vision Selling Guide', url: 'https://salessparx.com/resources/shared-vision-selling-guide/' },
+        { label: 'Fuse Market Maturity Assessment Criteria', url: 'https://salessparx.com/resources/fuse-market-maturity-assessment-criteria/' }
+      ]
+    };
+
+    function showTooltip(text) {
+      tooltipEl.textContent = text;
       tooltipEl.style.display = 'block';
-      positionTooltip(e);
     }
-    function positionTooltip(e) {
-      const tooltipEl = document.getElementById('tooltip');
-      if (!tooltipEl) return;
-      const x = e.pageX + 12;
-      const y = e.pageY + 12;
-      tooltipEl.style.left = x + 'px';
-      tooltipEl.style.top = y + 'px';
+    function positionTooltip(x, y) {
+      const padding = 12;
+      let left = x + padding;
+      let top = y + padding;
+      // prevent tooltip from going off screen
+      const rect = tooltipEl.getBoundingClientRect();
+      if (left + rect.width > window.innerWidth) left = x - rect.width - padding;
+      if (top + rect.height > window.innerHeight) top = y - rect.height - padding;
+      tooltipEl.style.left = `${left}px`;
+      tooltipEl.style.top = `${top}px`;
     }
     function hideTooltip() {
-      const tooltipEl = document.getElementById('tooltip');
-      if (!tooltipEl) return;
       tooltipEl.style.display = 'none';
     }
 
-    // High-level descriptions for each category used in the assessment header
-    const categoryDescriptions = {
-      'Value Proposition': 'Assess your ability to articulate economic value, address the 3 Whys and create an emotional, organisation‑wide value narrative.',
-      'Offering': 'Evaluate your capability to address the full solution lifecycle and deliver scalable, customer‑driven offerings.',
-      'Marketing': 'Review your effectiveness across market segmentation, branding, lead generation, nurturing and awareness building.',
-      'Sales': 'Examine your sales process, distribution model, culture, incentives and alignment with the overall business strategy.',
-      'Delivery': 'Consider your proficiency in delivering projects reliably, upskilling teams and maximising customer retention and satisfaction.',
-      'Enablement Technology': 'Gauge your utilisation of marketing automation, CRM, learning management, project management and lead generation tools.',
-      'Change Management': 'Understand your organisation’s readiness for change, leadership alignment, infrastructure and culture of adoption.'
-    };
-    
-
-    // Map numerical scores to maturity levels
+    // Map numerical scores to maturity levels (1 through 5)
     function scoreToLevel(score) {
-      if (score === 0) return 'None';
-      if (score === 1 || score === 2) return 'Emerging';
-      if (score === 3) return 'Basic';
-      if (score === 4) return 'Advanced';
-      if (score >= 5) return 'Leading';
-      return 'None';
+      // Determine maturity level based on continuous average:
+      // 1: None; >1 and <3: Emerging; >=3 and <4: Basic; >=4 and <5: Advanced; 5: Leading
+      if (score <= 1) return 'None';
+      if (score < 3) return 'Emerging';
+      if (score < 4) return 'Basic';
+      if (score < 5) return 'Advanced';
+      return 'Leading';
     }
 
     // Capture user details and responses
@@ -407,12 +561,17 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
     let currentCategoryIndex = 0;
     // Reorder categories to follow the desired sequence
     (function reorder() {
-      const desired = ['Value Proposition','Offering','Marketing','Sales','Delivery','Enablement Technology','Change Management'];
+      // Reorder categories to follow the desired sequence. Some category names may vary slightly (e.g. Enblement vs Enablement).
+      const desired = ['Value Proposition','Offering','Marketing','Sales','Delivery','Enablement Technology','Enblement Technology','Change Management'];
       if (Array.isArray(window.assessmentData)) {
         const reordered = [];
         desired.forEach(name => {
           const found = window.assessmentData.find(c => c.name === name);
-          if (found) reordered.push(found);
+          if (found && !reordered.includes(found)) reordered.push(found);
+        });
+        // Append any remaining categories that were not explicitly listed
+        window.assessmentData.forEach(cat => {
+          if (!reordered.includes(cat)) reordered.push(cat);
         });
         window.assessmentData = reordered;
       }
@@ -435,12 +594,15 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
       userDetails.email = email;
       // Ensure categories are ordered before starting the assessment
       (function reorderOnStart() {
-        const desired = ['Value Proposition','Offering','Marketing','Sales','Delivery','Enablement Technology','Change Management'];
+        const desired = ['Value Proposition','Offering','Marketing','Sales','Delivery','Enablement Technology','Enblement Technology','Change Management'];
         if (Array.isArray(window.assessmentData)) {
           const reordered = [];
           desired.forEach(name => {
             const found = window.assessmentData.find(c => c.name === name);
-            if (found) reordered.push(found);
+            if (found && !reordered.includes(found)) reordered.push(found);
+          });
+          window.assessmentData.forEach(cat => {
+            if (!reordered.includes(cat)) reordered.push(cat);
           });
           window.assessmentData = reordered;
         }
@@ -481,11 +643,11 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
     function renderCategory() {
       const category = window.assessmentData[currentCategoryIndex];
       document.getElementById('category-title').textContent = category.name;
-      // Update instructions: descriptive levels instead of numeric scale
-      // Use a category-specific description and instruct the user to hover for details
-      const headerDesc = categoryDescriptions[category.name] || '';
-      const instructionEl = document.getElementById('category-instructions');
-      instructionEl.innerHTML = `${headerDesc} <br/><small>Hover over each maturity level to understand what is being assessed.</small>`;
+      // Set the category instructions based on our description mapping and add a hint to hover for details
+      const desc = categoryDescriptions[category.name] || '';
+      const instrEl = document.getElementById('category-instructions');
+      // Create two paragraphs: one for the category description and one for the hover instruction. The hover instruction uses the hover-instruction class.
+      instrEl.innerHTML = `<p>${desc}</p><p class="hover-instruction">Hover over each maturity level to read the full description.</p>`;
       // Progress indicator
       document.getElementById('progress-indicator').textContent = `Section ${currentCategoryIndex + 1} of ${window.assessmentData.length}`;
       const container = document.getElementById('questions-container');
@@ -499,34 +661,40 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
         qDiv.appendChild(title);
         const optionsRow = document.createElement('div');
         optionsRow.className = 'option-row';
-        // Define the maturity level order and numeric values used for scoring
+        // Define the maturity level order and numeric values used for scoring (1–5)
         const levelOrder = ['None','Emerging','Basic','Advanced','Leading'];
-        // Map maturity labels to numerical values for scoring.
-        // None = 0; Emerging covers scores 1 and 2; Basic = 3; Advanced = 4; Leading = 5.
-        const valueMap = {None:0, Emerging:1, Basic:3, Advanced:4, Leading:5};
+        const valueMap = {None:1, Emerging:2, Basic:3, Advanced:4, Leading:5};
         levelOrder.forEach(levelName => {
           const value = valueMap[levelName];
           const optDiv = document.createElement('div');
           optDiv.className = 'option';
           optDiv.dataset.value = value;
-          // Attach the full description to a data attribute for the tooltip and only display the level name
+          // Display numeric prefix along with label (e.g. 1 None, 2 Emerging)
+          // Display bold number followed by the classification in parentheses (not bold)
+          optDiv.innerHTML = `<strong>${value}</strong> (${levelName})`;
+          // Attach full description for tooltip
           const fullDesc = subcat.descriptions[levelName] || '';
           optDiv.dataset.description = fullDesc;
-          optDiv.innerHTML = `<strong>${levelName}</strong>`;
-          // Tooltip events
-          optDiv.addEventListener('mouseenter', showTooltip);
-          optDiv.addEventListener('mousemove', positionTooltip);
-          optDiv.addEventListener('mouseleave', hideTooltip);
-          // Highlight if previously selected
+          // Restore previously selected value if exists
           const key = `${category.name}|${subcat.name}`;
           if (responses[key] === value) {
             optDiv.classList.add('active');
           }
+          // Event listeners for selection and tooltip
           optDiv.addEventListener('click', () => {
-            // clear other options in this row
             Array.from(optionsRow.children).forEach(child => child.classList.remove('active'));
             optDiv.classList.add('active');
             responses[key] = value;
+          });
+          optDiv.addEventListener('mouseenter', (e) => {
+            showTooltip(fullDesc);
+            positionTooltip(e.clientX, e.clientY);
+          });
+          optDiv.addEventListener('mousemove', (e) => {
+            positionTooltip(e.clientX, e.clientY);
+          });
+          optDiv.addEventListener('mouseleave', () => {
+            hideTooltip();
           });
           optionsRow.appendChild(optDiv);
         });
@@ -587,9 +755,55 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
       }
       // Ensure the narrative ends with a general insight to reach about 50 words
       summaryNarrative += ' This assessment highlights your strengths and opportunities to scale your go‑to‑market success.';
-      document.getElementById('summary-text').textContent = summaryNarrative;
+      // Hide the old short summary text – overall narrative replaces it
+      const summaryEl = document.getElementById('summary-text');
+      summaryEl.textContent = '';
+      summaryEl.style.display = 'none';
       // Draw radar chart
       drawRadarChart(categoryScores);
+
+      // Compute overall average across all categories and craft an overview narrative
+      const totalAvg = categoryScores.reduce((sum, c) => sum + c.avg, 0) / categoryScores.length;
+      const overallLevel = scoreToLevel(totalAvg);
+      // Determine high, developing and improvement categories again for overall summary
+      const highCats = categoryScores.filter(c => c.avg >= 4).map(c => c.name);
+      const midCats = categoryScores.filter(c => c.avg >= 3 && c.avg < 4).map(c => c.name);
+      const lowCats = categoryScores.filter(c => c.avg < 3).map(c => c.name);
+      // Build overall narrative using multiple paragraphs and without referencing the FUSE framework directly.
+      const nextStageMapOverall = { None: 'Emerging', Emerging: 'Basic', Basic: 'Advanced', Advanced: 'Leading', Leading: 'Leading' };
+      const overallNext = nextStageMapOverall[overallLevel] || 'Emerging';
+      let narrativeHtml = '';
+      // Paragraph 1: headline score and stage
+      narrativeHtml += '<p>Your overall go‑to‑market maturity score is <strong>' + totalAvg.toFixed(1) + '</strong> out of 5, placing you in the <strong>' + overallLevel + '</strong> stage. ';
+      if (overallLevel === 'None') {
+        narrativeHtml += 'At this stage, your organisation lacks formal processes across most areas.';
+      } else if (overallLevel === 'Emerging') {
+        narrativeHtml += 'You have begun building structure, but many capabilities remain nascent.';
+      } else if (overallLevel === 'Basic') {
+        narrativeHtml += 'Foundational practices are in place, yet there is significant room to optimise and scale.';
+      } else if (overallLevel === 'Advanced') {
+        narrativeHtml += 'Your approach is data‑driven and optimised, though a few dimensions could still be strengthened.';
+      } else if (overallLevel === 'Leading') {
+        narrativeHtml += 'You exhibit world‑class maturity and continuous improvement across your go‑to‑market functions.';
+      }
+      narrativeHtml += '</p>';
+      // Paragraph 2: strengths, mid-range and low-range categories
+      narrativeHtml += '<p>';
+      if (highCats.length) {
+        narrativeHtml += 'You excel in <strong>' + highCats.join(', ') + '</strong>. ';
+      }
+      if (midCats.length) {
+        narrativeHtml += midCats.join(', ') + ' show solid foundations but would benefit from further development. ';
+      }
+      if (lowCats.length) {
+        narrativeHtml += 'Key opportunities lie within <strong>' + lowCats.join(', ') + '</strong>, where establishing stronger processes and data‑driven practices will have the greatest impact. ';
+      }
+      narrativeHtml += '</p>';
+      // Paragraph 3: guidance for next steps
+      narrativeHtml += '<p>To progress from <strong>' + overallLevel + '</strong> to <strong>' + overallNext + '</strong>, concentrate on strengthening your core capabilities, aligning teams around shared processes and data, and investing in repeatable, scalable selling motions. Use the table and curated resources below to prioritise initiatives that will help you ascend to the next maturity stage. For deeper guidance, download our book <a href="https://salessparx.com/light-your-sales-fuse/" target="_blank">Light Your Sales Fuse</a> or contact us for personalised advice.</p>';
+      // Update the overall summary card with a heading and the narrative
+      const overallDiv = document.getElementById('overall-summary');
+      overallDiv.innerHTML = `<h2>Overall Maturity Summary</h2>` + narrativeHtml;
       // Save assessment to localStorage for admin dashboard
       try {
         const saved = JSON.parse(localStorage.getItem('assessments')) || [];
@@ -600,9 +814,14 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
       } catch (e) {
         console.warn('Unable to save assessment:', e);
       }
-      // Generate improvement suggestions using collapsible details for each category
+      // Build a modern table summarising scores, classifications, improvements and resources
       const improvementsDiv = document.getElementById('improvements');
       improvementsDiv.innerHTML = '';
+      const table = document.createElement('table');
+      table.className = 'improvements-table';
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = '<th>Category</th><th>Average Score</th><th>Level</th><th>Improvement Suggestions</th><th>Recommended Resources</th>';
+      table.appendChild(headerRow);
       window.assessmentData.forEach(cat => {
         // Compute average and classification for this category
         let total = 0;
@@ -613,53 +832,63 @@ window.assessmentData = JSON.parse(document.getElementById("assessment-data").te
           count++;
         });
         const avg = total / count;
-        const classification = scoreToLevel(Math.round(avg));
-        // Determine a quick tip to display next to the category title
-        let quickTip = '';
-        for (const sub of cat.subcategories) {
-          const key = `${cat.name}|${sub.name}`;
-          const score = responses[key];
-          const level = scoreToLevel(score);
-          let nextLevel;
-          switch (level) {
-            case 'None': nextLevel = 'Emerging'; break;
-            case 'Emerging': nextLevel = 'Basic'; break;
-            case 'Basic': nextLevel = 'Advanced'; break;
-            case 'Advanced': nextLevel = 'Leading'; break;
-            default: nextLevel = null;
-          }
-          if (nextLevel) {
-            quickTip = `Focus on ${sub.name.toLowerCase()} to move towards ${nextLevel}.`;
-            break;
-          }
-        }
-        // Create details element
-        const detailsEl = document.createElement('details');
-        const summary = document.createElement('summary');
-        summary.innerHTML = `<strong>${cat.name}: ${classification}</strong>${quickTip ? ' – ' + quickTip : ''}`;
-        detailsEl.appendChild(summary);
-        // Add detailed improvement items
-        cat.subcategories.forEach(sub => {
-          const key = `${cat.name}|${sub.name}`;
-          const score = responses[key];
-          const currentLevel = scoreToLevel(score);
-          let nextLevel;
-          switch (currentLevel) {
-            case 'None': nextLevel = 'Emerging'; break;
-            case 'Emerging': nextLevel = 'Basic'; break;
-            case 'Basic': nextLevel = 'Advanced'; break;
-            case 'Advanced': nextLevel = 'Leading'; break;
-            default: nextLevel = null;
-          }
-          if (nextLevel) {
-            const p = document.createElement('p');
-            p.className = 'improvement-item';
-            p.innerHTML = `<strong>${sub.name}:</strong> To progress from ${currentLevel} to ${nextLevel}, ${sub.descriptions[nextLevel]}`;
-            detailsEl.appendChild(p);
-          }
+        // Compute classification based on the raw average, not rounded
+        const classification = scoreToLevel(avg);
+        // Build suggestions list (up to 3) from our pre-defined mapping
+        const suggList = improvementSuggestions[cat.name] || improvementSuggestions['Enablement Technology'];
+        const resourceList = categoryResources[cat.name] || categoryResources['Enablement Technology'];
+        const tr = document.createElement('tr');
+        // Category name
+        const catTd = document.createElement('td');
+        catTd.textContent = cat.name;
+        tr.appendChild(catTd);
+        // Average score
+        const scoreTd = document.createElement('td');
+        scoreTd.textContent = avg.toFixed(1);
+        tr.appendChild(scoreTd);
+        // Level
+        const levelTd = document.createElement('td');
+        levelTd.textContent = classification;
+        tr.appendChild(levelTd);
+        // Suggestions
+        const suggTd = document.createElement('td');
+        // Determine the next maturity stage based on the current classification
+        const nextStageMap = { None: 'Emerging', Emerging: 'Basic', Basic: 'Advanced', Advanced: 'Leading', Leading: 'Leading' };
+        const nextStage = nextStageMap[classification] || 'Emerging';
+        // Intro paragraph explaining how to move to the next stage
+        const intro = document.createElement('p');
+        intro.innerHTML = `To progress from <strong>${classification}</strong> to <strong>${nextStage}</strong>, focus on:`;
+        suggTd.appendChild(intro);
+        const suggUl = document.createElement('ul');
+        suggList.forEach(s => {
+          const li = document.createElement('li');
+          li.textContent = s;
+          suggUl.appendChild(li);
         });
-        improvementsDiv.appendChild(detailsEl);
+        suggTd.appendChild(suggUl);
+        tr.appendChild(suggTd);
+        // Resources
+        const resTd = document.createElement('td');
+        const resUl = document.createElement('ul');
+        resourceList.forEach(r => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = r.url;
+          a.target = '_blank';
+          a.textContent = r.label;
+          li.appendChild(a);
+          resUl.appendChild(li);
+        });
+        resTd.appendChild(resUl);
+        tr.appendChild(resTd);
+        table.appendChild(tr);
       });
+      improvementsDiv.appendChild(table);
+      // Clear the FUSE container. At this time we do not show the FUSE graphic or explanation.
+      const fuseContainer = document.getElementById('fuse-container');
+      if (fuseContainer) {
+        fuseContainer.innerHTML = '';
+      }
     }
 
     // Radar chart drawing using Canvas API
